@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>TEST</title>
+</head>
+
+<body>
+    <div id="container">
+    </div>
+    <div>
+        <h2>Params</h2>
+        <p>Size: </p>
+        <input type="number" id="size" placeholder="size" value="16">
+        <p>Number of colors: </p>
+        <input type="number" id="colors" placeholder="colors" value="8">
+        <button type="button" onclick="start($('#colors').val(), $('#size').val())">Start</button>
+    </div>
+    <script src="jq.js"></script>
+    <script>
+    function getRandomInt(min, max) {
+        min = Math.ceil(min);
+        max = Math.floor(max);
+        return Math.floor(Math.random() * (max - min)) + min; //The maximum is exclusive and the minimum is inclusive
+    }
+
+    function shuffle(array) {
+        var currentIndex = array.length,
+            temporaryValue, randomIndex;
+
+        // While there remain elements to shuffle...
+        while (0 !== currentIndex) {
+
+            // Pick a remaining element...
+            randomIndex = Math.floor(Math.random() * currentIndex);
+            currentIndex -= 1;
+
+            // And swap it with the current element.
+            temporaryValue = array[currentIndex];
+            array[currentIndex] = array[randomIndex];
+            array[randomIndex] = temporaryValue;
+        }
+
+        return array;
+    }
+    var colorsCnt = 6;
+    var size = 16;
+
+    function start(colorsCnt, size) {
+    	if (!colorsCnt || !size) return  alert('Incorrect Params');
+    	if (Math.sqrt(size) % 2 !== 0) return  alert('Incorrect Params');
+    	if (colorsCnt > (size / 2)) return  alert('Incorrect Params');
+        var colors = [];
+        while (colors.length < colorsCnt) {
+            var clr = getRandomInt(0, 255) + ',' + getRandomInt(0, 255) + ',' + getRandomInt(0, 255);
+            if (!colors.includes(clr)) colors.push(clr);
+        }
+        var elements = [];
+        while (elements.length < (size / 2)) {
+            elements = elements.concat(colors);
+        }
+        elements = elements.splice(0, size / 2)
+        elements = elements.concat(elements);
+        elements = shuffle(elements);
+
+        $('#container').html('');
+
+        while (elements.length > 0) {
+            var array = elements.splice(0, Math.sqrt(size));
+            var html = '<div class="row">'
+            array.forEach(function(el) {
+                html += '<div class="element" data-color="rgb(' + el + ')" style=""></div>';
+            })
+            html += '</div>';
+            $('#container').append(html);
+        }
+        $('.element').click(function() {
+            if ($(this).hasClass('element-ok')) return false;
+            $(this).addClass('element-open');
+            $(this).css('background', $(this).attr('data-color'));
+
+            if ($('.element-open').length > 1) {
+                if ($($('.element-open')[0]).attr('data-color') == $($('.element-open')[1]).attr('data-color')) {
+                    $('.element-open').each(function() {
+                        $(this).removeClass('element-open');
+                        $(this).addClass('element-ok');
+                    })
+                } else {
+                    setTimeout(function() {
+                        $('.element-open').each(function() {
+                            $(this).removeClass('element-open');
+                            $(this).css('background', 'black');
+                        })
+                    }, 1000)
+                }
+            } 
+
+        })
+    }
+    </script>
+    <style type="text/css">
+    .row {
+        display: block;
+        width: 100%;
+    }
+
+    .element {
+        display: inline-block;
+        width: 100px;
+        height: 100px;
+        margin: 10px;
+        background: black;
+    }
+    </style>
+</body>
+
+</html>
